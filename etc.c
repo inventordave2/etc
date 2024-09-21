@@ -1,7 +1,13 @@
+// ETC_C
+
 #ifndef __LOCAL__ETC__
-#define __LOCAL__ETC__
+#define __LOCAL__ETC__	
+
+#include <stdlib.h>
+#include <string.h>
 
 char* sanitizeStr( char* );
+char* sanitizeStr2( char*, char* invalid_chars_array );
 char* getstring( char* );
 char* int2str( int );
 int str2int( char* );
@@ -54,6 +60,35 @@ char* sanitizeStr( char* A )	{
 	return _;
 }
 
+// example invalid chars array:
+// char* invalid_chars_array = "\\\"*/:<>?|";
+// encodes:  \ " * / : < > ? |
+
+char* sanitizeStr2( char* A, char* invalid_chars_array )	{
+
+	char* ics = invalid_chars_array;
+	char* B = (char*)calloc( sizeof(char), strlen(A)+1 );
+	char* _ = B;
+	int i;
+
+	while((*A) != '\0')	{
+
+		*B = *A;
+
+		i=0;
+		while( ics[i++]!='\0' )
+			if( (*A)==ics[i] )
+				*B = '.';
+
+		++A;
+		++B;
+	}
+
+	*B = '\0';
+
+	return _;
+}
+
 
 // [char*] getstring( [char*] );
 // This function prevents a lot of bugs and pointer-mangling etc.
@@ -93,18 +128,23 @@ char* int2str(int v)	{
 #include <limits.h>
 #include <string.h>
 int str2int(char* input)	{
-	
-	if( cmp_dstr( int2str(INT_MAX), input )<0 )
+
+	char* t = int2str(INT_MAX);
+	if( cmp_dstr( t, input )<0 )	{
+
+		free( t );
 		return 0; // The input string represents a number too large!
+	}
+	free( t );
 
 	int len = strlen(input), i = 0, result = 0;
-	
+
 	if (input[0] == '-')
 		i = 1;
 
 	for(; i<len; i++)
 		result = result * 10 + ( input[i] - '0' );
-	
+
 	if (input[0] == '-')
 		result = 0 - result;
 	
@@ -120,12 +160,21 @@ int str2int(char* input)	{
 // +1  if a > b
 #include <stdio.h>
 #include <string.h>
-int cmp_dstr( char* a, char* b )	{
+int cmp_dstr( char* a_, char* b_ )	{
 
-	if( a == NULL )
+	char* a = a_;
+	char* b = b_;
+	
+	if( a_ == NULL )	{
+		
 		printf( "Warning. Arg 'a' in cmp_dstr (\"%s\":%d) is a NULL ptr.\n", __FILE__, __LINE__ );
-	if( b == NULL )
+		a = "0";
+	}
+	if( b_ == NULL )	{
+		
 		printf( "Warning. Arg 'b' in cmp_dstr (\"%s\":%d) is a NULL ptr.\n", __FILE__, __LINE__ );
+		b = "0";
+	}
 	
 	fflush( stdout );
 	
@@ -171,19 +220,21 @@ int systemEndian()	{
 		v += ( '1'+(i) ) << ( i*8 );
 
 	for( i=0; i<s; i++ )
-		// Uncomment the "printf" code line below before compiling the function, and it will print a clue on invocation
+		// Uncomment the "printf" code line below before compiling the function and it will print a clue on invocation
 		// as to how the function performs the test.
+
 		//printf( "Byte at offset '%d' contains '%c'\n", i, ((char*)(void*)(&v))[i] );
+
 		;
-	
-	int b = ((char*)(&v))[0] == ('0' + s);
+
+	int b = ((char*)(&v))[0] == ( '0' + s );
 	if( b )
 		//printf( "System is big-endian.\n" );
 		;
 	else
 		//printf( "System is little-endian.\n" );
 		;
-	return ((char*)(&v))[0] == ('0' + 1); // returns 1 if little-endian. returns 0 if big-endian.
+	return ((char*)(&v))[0] == ( '1' ); // returns 1 if little-endian. returns 0 if big-endian.
 }
 
 
