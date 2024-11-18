@@ -14,6 +14,91 @@ int str2int( char* );
 int cmp_dstr( char*,char* );
 int systemEndian( );
 
+
+typedef struct stack	{
+
+	// A text description of the Stack Type.
+	char* desc;
+
+	// The actual 'stack' array.
+	void** _;
+	signed int size;
+
+	// Max number of elements ( initialization size ).
+	unsigned int maxEntries;
+
+	// sizeof( element ), (1,255]
+	uint_8_t elemSize;
+
+	// Standard stack operators.
+	void (*push)( void* item, void* stackptr );
+	void* (*pull)( void* stackptr );
+
+	// If the stack object _ needs to be resized.
+	signed int (*resize*( void* stack_ptr, int r );
+
+	// Useful for error reporting.
+	signed statusCode;
+
+} Stack;
+
+struct Stack initStack( char* desc, uint_8_t elemSize, unsigned max_entries )	{
+
+	struct Stack stack;
+
+	stack.desc 			= getstring( desc );
+	stack.maxEntries 	= max_entries;
+	stack.elemSize		= elemSize;
+
+	stack.push			= __STACK_PUSH_CALLABLE__;
+	stack.pull			= __STACK_PULL_CALLABLE__;
+	stack.resize		= __STACK_RESIZE_CALLABLE__;
+
+	stack.statusCode = 0;
+
+}
+
+void push( void* stackptr )	{
+
+	stackptr->push( stackptr );
+}
+
+stack min2k_native	( int n )	{
+
+	if( n<2 )
+		return 0;
+
+	int x;
+	int y;
+	int diff;
+
+	y = x = 1;
+
+	while( y <= n )	{
+
+		x *= 2;
+		y += x;
+
+		push( y );
+	}
+
+	if( y>n )	{
+
+		diff = n - y;
+
+		// recurse here.
+	}
+
+	if( y==n )	{
+
+		
+	}
+
+}
+
+
+
+
 // SANITIZESTR: General method for pre-processing of an input c-string (safety).
 // [char*] sanitizeStr( [char*] );
 // In the switch/case block of this function is the self-evidence of how it works.
